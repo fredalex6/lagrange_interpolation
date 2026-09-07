@@ -32,7 +32,7 @@ def chebyshev_nodes(a, b, n):
 
     return x_thilde_vals
 
-def plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, N = 1000):
+def plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, n, N = 1000):
     x_vals = np.linspace(x_equidistant[0], x_equidistant[-1], N)
 
     y_equidistant = lagrange_interp(x_equidistant, f(x_equidistant), x_vals)
@@ -42,7 +42,7 @@ def plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, N = 1000):
     plt.plot(x_vals, y_equidistant, label="Equidistant", color="green")
     plt.plot(x_vals, y_chebyshev, label="Chebyshev", color="red")
 
-    plt.title("Lagrange interpolation with Chebyshev and equidistant nodes")
+    plt.title(f"Lagrange interpolation with Chebyshev and equidistant nodes, n = {n}")
     plt.xlabel("x")
     plt.ylabel("y")
 
@@ -57,6 +57,12 @@ if __name__ == "__main__":
     x_equidistant = np.linspace(a, b, n)
     x_chebyshev = chebyshev_nodes(a, b, n)
 
-    plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev)
+    plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, n)
+
+    for n_i in [15, 20, 30]:
+        x_equidistant = np.linspace(a, b, n_i)
+        x_chebyshev = chebyshev_nodes(a, b, n_i)
+
+        plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, n_i)
 
 
