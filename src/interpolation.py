@@ -2,9 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def lagrange_interp(nodes, vals, x_vals):
+def lagrange_interp(nodes, vals, x_vals=[]):
     if len(np.unique(nodes)) != len(nodes):
         raise ValueError("nodes must be distinct")
+
+    if len(x_vals) == 0:
+        x_vals = nodes
 
     y_vals = np.zeros(len(x_vals))
 
