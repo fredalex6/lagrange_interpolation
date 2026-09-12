@@ -34,14 +34,15 @@ def plot_piecewise_equidistant(outer_nodes, f):
     plt.show()
 
 
+# one of the functions from 1b)
 def f(x):
-    return 1 / (1 + x**2)
+    return np.exp(3*x) * np.sin(2*x)
 
 
 if __name__ == "__main__":
     a, b = -5, 5
 
-    K_vals = np.unique(np.logspace(1, 3, 10).round().astype(int))
+    K_vals = np.unique(np.logspace(0.5, 3, 20).round().astype(int))
     error = []
 
     for K in K_vals:
