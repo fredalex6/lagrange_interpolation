@@ -5,9 +5,11 @@ import matplotlib.pyplot as plt
 from RBF import RBF_interpolate
 
 
+# Runge's function
 def f(x):
     return 1 / (1 + x**2)
 
+# task parameters
 a = -5; b = 5; N = 1000
 x_eval = np.linspace(a, b, N)
 y_vals = f(x_eval)
@@ -30,7 +32,7 @@ def descent_step(x_vals, theta, learning_rate):
 
     return new_x_vals, new_theta, loss, (grad_x, grad_theta)
 
-
+# merges an array with a scalar
 def pack(v, t):
     return np.concatenate([v, np.atleast_1d(t)])
 
@@ -47,6 +49,7 @@ if __name__ == "__main__":
     loss_history = []
     epoch = 0
 
+    # optionally: use epoch = max_epochs as only stopping criterion
     while (np.linalg.norm(interior_next - interior_prev) > TOL or np.abs(theta_next - theta_prev) > TOL) and epoch < max_epochs:
         interior_prev = interior_next.copy()
         theta_prev = theta_next
@@ -55,9 +58,14 @@ if __name__ == "__main__":
         grad = pack(grad_x, grad_theta)
         x = pack(interior_prev, theta_prev)
 
+        if np.isnan(grad).any():
+            print("Gradient has atleast one NaN-element")
+            break
+
         max_inner_its = 100
         inner_it = 0
 
+        # backtracking for gradient descent
         while inner_it < max_inner_its:
             x_thilde = x - (1/L) * grad
             loss_thilde = loss_fn(x_thilde[:-1], x_thilde[-1])
