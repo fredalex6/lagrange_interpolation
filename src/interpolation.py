@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 
 
 def lagrange_interp(nodes, vals, x_vals=[]):
+    # make sure scalars can be inputs
+    x_vals = np.atleast_1d(np.asarray(x_vals, dtype=float))
+
     if len(np.unique(nodes)) != len(nodes):
         raise ValueError("nodes must be distinct")
 
