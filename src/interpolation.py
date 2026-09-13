@@ -32,7 +32,10 @@ def chebyshev_nodes(a, b, n):
 
     return x_thilde_vals
 
-def plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, n, N = 1000):
+def plot_equidistant_chebyshev(f, a, b, n, N = 1000):
+    x_equidistant = np.linspace(a, b, n+1)
+    x_chebyshev = chebyshev_nodes(a, b, n+1)
+
     x_vals = np.linspace(x_equidistant[0], x_equidistant[-1], N)
 
     y_equidistant = lagrange_interp(x_equidistant, f(x_equidistant), x_vals)
@@ -53,16 +56,12 @@ def plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, n, N = 1000):
 
 if __name__ == "__main__":
     a = -5; b = 5; n = 10
-
-    x_equidistant = np.linspace(a, b, n)
-    x_chebyshev = chebyshev_nodes(a, b, n)
-
-    plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, n)
+    plot_equidistant_chebyshev(f, a, b, n)
 
     for n_i in [15, 20, 30]:
         x_equidistant = np.linspace(a, b, n_i)
         x_chebyshev = chebyshev_nodes(a, b, n_i)
 
-        plot_equidistant_chebyshev(f, x_equidistant, x_chebyshev, n_i)
+        plot_equidistant_chebyshev(f, a, b, n_i)
 
 
