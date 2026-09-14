@@ -25,11 +25,11 @@ def piecewise_lagrange_interp(outer_nodes, f, n, x):
     return y
 
 
-def plot_piecewise_equidistant(outer_nodes, f, n, x):
-    x_vals, y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x)
+def plot_piecewise_equidistant(outer_nodes, f, n, x, fname="f"):
+    y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x)
 
-    plt.plot(x_vals, f(x_vals), label="f(x), Runge's function", color="black")
-    plt.plot(x_vals, y_vals, label="Equidistant", color="red")
+    plt.plot(x, f(x), label=f"{fname}(x)", color="black")
+    plt.plot(x, y_vals, label=f"piecewise, n = {n}", color="red")
     plt.title("Piecewise Lagrange interpolation with equidistant nodes")
     plt.xlabel("x"); plt.ylabel("y")
     plt.grid(); plt.legend()
@@ -44,7 +44,7 @@ def f(x):
 if __name__ == "__main__":
     a, b = -5, 5; n_max = 10
 
-    K_vals = np.unique(np.logspace(0.5, 3, 15).round().astype(int))
+    K_vals = np.unique(np.logspace(0.3, 3, 30).round().astype(int))
     x_eval = np.linspace(a, b, 100*n_max)
 
     for n in range(1, n_max+1):
@@ -65,19 +65,20 @@ if __name__ == "__main__":
     plt.show()
 
 
-    for n in [1, 3]:
-        total_nodes = []
-        error = []
+    for n in range(1, n_max+1):
+        K_used, error = [], []
 
         for K in K_vals:
             outer_nodes = np.linspace(a, b, K+1)
+            x_eval = np.linspace(a, b, 37*K + 1) # 37 points per subinterval
             y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x_eval)
 
-            total_nodes.append(K*n + 1)
-            error.append(max_norm_error(f, x_eval, y_vals))
+            e = max_norm_error(f, x_eval, y_vals)
+            K_used.append(K); error.append(e)
 
-        
-        plt.loglog(total_nodes, error, label=f"piecewise, n = {n}")
+        slope = np.polyfit(np.log(K_used[-4:]), np.log(error[-4:]), 1)[0]
+        print(f"n = {n:2d}: measured slope {slope:6.2f}, theory {-(n+1):3d}")
+        plt.loglog(K_used, error, label=f"n = {n}")
 
 
     total_nodes_global = []
@@ -85,7 +86,7 @@ if __name__ == "__main__":
     error_chebyshev = []
 
     for n_global in range(2, 41, 2):
-        nodes_equidistant = np.linspace(a, b, n_global)
+        nodes_equidistant = np.linspace(a, b, n_global+1)
         nodes_chebyshev = chebyshev_nodes(a, b, n_global+1)
 
         y_equidistant = lagrange_interp(nodes_equidistant, f(nodes_equidistant), x_eval)
