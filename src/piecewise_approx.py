@@ -25,17 +25,6 @@ def piecewise_lagrange_interp(outer_nodes, f, n, x):
     return y
 
 
-def plot_piecewise_equidistant(outer_nodes, f, n, x, fname="f"):
-    y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x)
-
-    plt.plot(x, f(x), label=f"{fname}(x)", color="black")
-    plt.plot(x, y_vals, label=f"piecewise, n = {n}", color="red")
-    plt.title("Piecewise Lagrange interpolation with equidistant nodes")
-    plt.xlabel("x"); plt.ylabel("y")
-    plt.grid(); plt.legend()
-    plt.show()
-
-
 # one of the test functions from b)
 def f(x):
     return np.cos(2*np.pi*x)
