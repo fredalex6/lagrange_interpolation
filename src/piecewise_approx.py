@@ -86,8 +86,8 @@ if __name__ == "__main__":
         error_chebyshev.append(max_norm_error(f, x_eval, y_chebyshev))
 
 
-    plt.loglog(total_nodes_global, error_equidistant, label="max error, equidistant nodes")
-    plt.loglog(total_nodes_global, error_chebyshev, label="max error, chebyshev nodes")
+    plt.loglog(total_nodes_global, error_equidistant, label="global, equidistant nodes (n = N-1)")
+    plt.loglog(total_nodes_global, error_chebyshev, label="global, Chebyshev nodes (n = N-1)")
 
     plt.title("Interpolation error in the max norm for piecewise vs. global interpolation")
     plt.xlabel("total nodes, N")
