@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from time import perf_counter
 
 from interpolation import lagrange_interp, chebyshev_nodes
 from error import max_norm_error
@@ -28,6 +29,40 @@ def piecewise_lagrange_interp(outer_nodes, f, n, x):
 # one of the test functions from b)
 def f(x):
     return np.cos(2*np.pi*x)
+
+
+def piecewise_perf(f, a, b, n, K, x_eval, runs=10):
+    """Measures the performance of piecewise interpolation of f on [a, b], given n and K"""
+
+    best_time = np.inf
+
+    # find the best time over multiple runs given same params 
+    for _ in range(runs):
+        start_time = perf_counter()
+        outer_nodes = np.linspace(a, b, K+1)
+        y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x_eval)
+        end_time = perf_counter()
+
+        best_time = min(best_time, end_time - start_time)
+
+    return best_time
+
+
+def global_perf(f, a, b, n, x_eval, runs=10):
+    """Measures the performance of global interpolation of f on [a, b], given n"""
+
+    c_nodes = chebyshev_nodes(a, b, n)
+    best_time = np.inf
+
+    # find the best time over multiple runs given same params 
+    for _ in range(runs):
+        start_time = perf_counter()
+        y_vals = lagrange_interp(c_nodes, f(c_nodes), x_eval)
+        end_time = perf_counter()
+
+        best_time = min(best_time, end_time - start_time)
+
+    return best_time
 
 
 if __name__ == "__main__":
@@ -95,4 +130,20 @@ if __name__ == "__main__":
 
     plt.legend()
     plt.show()
+
+
+    # measure performance
+    x_ref = np.linspace(a, b, 20001)
+
+    for n, K in [(1, 100), (1, 1000), (3, 20), (3, 100), (10, 10)]:
+        outer_nodes = np.linspace(a, b, K+1)
+        e = max_norm_error(f, x_ref, piecewise_lagrange_interp(outer_nodes, f, n, x_ref))
+        print(f"piecewise n={n:2d}, K={K:4d}: N={K*n+1:5d}, error={e:.2e}, "
+              f"time={piecewise_perf(f, a, b, n, K, x_ref)*1e3:.2f} ms")
+
+    for n in [10, 20, 40]:
+        nodes = chebyshev_nodes(a, b, n+1)
+        e = max_norm_error(f, x_ref, lagrange_interp(nodes, f(nodes), x_ref))
+        print(f"global   n={n:2d}        : N={n+1:5d}, error={e:.2e}, "
+              f"time={global_perf(f, a, b, n, x_ref)*1e3:.2f} ms")
     
