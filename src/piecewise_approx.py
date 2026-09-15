@@ -71,23 +71,30 @@ if __name__ == "__main__":
     K_vals = np.unique(np.logspace(0.3, 3, 30).round().astype(int))
     x_eval = np.linspace(a, b, 100*n_max)
 
+    fig, ax = plt.subplots(figsize=(9, 6.5))
+ 
     for n in range(1, n_max+1):
         error = []
-
+ 
         for K in K_vals:
             outer_nodes = np.linspace(a, b, K+1)
             y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x_eval)
             error.append(max_norm_error(f, x_eval, y_vals))
-
-        plt.title("Interpolation error in the max norm for piecewise interpolation")
-        plt.loglog(K_vals, error, label=f"n = {n}")
-
-    plt.xlabel("K")
-    plt.ylabel(r"$||f-p_n||_{\infty}$")
-
-    plt.legend()
+ 
+        ax.loglog(K_vals, error, label=f"n = {n}")
+ 
+    ax.set_xlabel("K")
+    ax.set_ylabel(r"$||f-p_n||_{\infty}$")
+ 
+    fig.subplots_adjust(top=0.84)
+    fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.93),
+            ncol=5, fontsize="small", frameon=False)
+    fig.suptitle("Interpolation error in the max norm for piecewise interpolation",
+                y=0.975)
     plt.show()
 
+
+    fig, ax = plt.subplots(figsize=(9, 6.5))
 
     for n in range(1, n_max+1):
         K_used, error = [], []
@@ -121,16 +128,18 @@ if __name__ == "__main__":
         error_chebyshev.append(max_norm_error(f, x_eval, y_chebyshev))
 
 
-    plt.loglog(total_nodes_global, error_equidistant, label="global, equidistant nodes (n = N-1)")
-    plt.loglog(total_nodes_global, error_chebyshev, label="global, Chebyshev nodes (n = N-1)")
+    ax.loglog(total_nodes_global, error_equidistant, label="global, equidistant nodes (n = N-1)")
+    ax.loglog(total_nodes_global, error_chebyshev, label="global, Chebyshev nodes (n = N-1)")
 
-    plt.title("Interpolation error in the max norm for piecewise vs. global interpolation")
-    plt.xlabel("total nodes, N")
-    plt.ylabel(r"$||f-p_n||_{\infty}$")
+    ax.set_xlabel("total nodes, N")
+    ax.set_ylabel(r"$||f-p_n||_{\infty}$")
 
-    plt.legend()
+    fig.subplots_adjust(top=0.80)
+    fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.93),
+            ncol=4, fontsize="small", frameon=False)
+    fig.suptitle("Interpolation error in the max norm for piecewise vs. global interpolation",
+                y=0.975)
     plt.show()
-
 
     # measure performance
     x_ref = np.linspace(a, b, 20001)
