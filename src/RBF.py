@@ -24,7 +24,7 @@ def M(nodes, eps):
     return interpolation_matrix(nodes, nodes, eps)
 
 
-def RBF_interpolate(nodes, y_vals, x_eval, eps=1):
+def RBF_interpolate(nodes, y_vals, x_eval, eps=1.39):
     M_ = M(nodes, eps)
     w = np.linalg.solve(M_, y_vals)
 
