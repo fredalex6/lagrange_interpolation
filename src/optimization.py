@@ -126,14 +126,17 @@ if __name__ == "__main__":
     
     for n in n_vals:
         # approximate 2 norm error for optimal nodes
-        nodes, loss_history = optimal_nodes(a, b, n, eps0, L=100)
+        params, loss_history = optimal_nodes(a, b, n, eps0, L=100)
         optimal_nodes_error.append(loss_history[-1])
 
         e_nodes = np.linspace(a, b, n+1)
         c_nodes = chebyshev_nodes(a, b, n+1)
 
-        f_thilde_equidistant = RBF_interpolate(e_nodes, f(e_nodes), x_eval)
-        f_thilde_chebyshev = RBF_interpolate(c_nodes, f(c_nodes), x_eval)
+        eps = params[-1]
+
+        # use same epsilon value for equidistant and Chebyshev RBF interpolation
+        f_thilde_equidistant = RBF_interpolate(e_nodes, f(e_nodes), x_eval, eps)
+        f_thilde_chebyshev = RBF_interpolate(c_nodes, f(c_nodes), x_eval, eps)
 
         error_equidistant.append(two_norm_error_square(f, x_eval, f_thilde_equidistant))
         error_chebyshev.append(two_norm_error_square(f, x_eval, f_thilde_chebyshev))
