@@ -20,6 +20,18 @@ def loss_fn(nodes, theta):
 
     return two_norm_error_square(f, x_eval, f_thilde)
 
+def make_loss(f, a, b, N):
+    x_eval = np.linspace(a, b, N+1)
+    f_eval = f(x_eval)
+
+    def loss_fn(nodes, theta):
+        eps = np.exp(theta)
+        f_tilde = RBF_interpolate(nodes, f(nodes), x_eval, eps)
+        return (b - a) / N * np.sum((f_eval - f_tilde)**2)
+
+    return loss_fn, x_eval
+
+loss_fn, x_eval = make_loss(f, a, b, N)
 loss_and_grad = value_and_grad(loss_fn, (0, 1))
 
 def descent_step(x_vals, theta, learning_rate):
