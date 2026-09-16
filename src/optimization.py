@@ -34,21 +34,14 @@ def make_loss(f, a, b, N):
 loss_fn, x_eval = make_loss(f, a, b, N)
 loss_and_grad = value_and_grad(loss_fn, (0, 1))
 
-def descent_step(x_vals, theta, learning_rate):
-    loss, (grad_x, grad_theta) = loss_and_grad(x_vals, theta)
-
-    new_x_vals = x_vals - learning_rate * grad_x
-    new_theta = theta - learning_rate * grad_theta
-
-    return new_x_vals, new_theta, loss, (grad_x, grad_theta)
 
 # merges an array with a scalar
 def pack(v, t):
     return np.concatenate([v, np.atleast_1d(t)])
 
 
-def optimal_nodes(f, a, b, n, eps0):
-    L = 100; rho = 0.5; rho_bar = 1.5; TOL = 1e-7
+def optimal_nodes(a, b, n, eps0, L):
+    rho = 0.5; rho_bar = 1.5; TOL = 1e-7
     theta_prev = 0; theta = np.log(eps0)
     max_epochs = 2000
 
@@ -101,25 +94,29 @@ def optimal_nodes(f, a, b, n, eps0):
 
     final_loss = loss_fn(nodes, theta)
 
-    return pack(loss_history, final_loss)
+    return pack(np.sort(nodes), np.exp(theta)), pack(loss_history, final_loss)
 
 
 if __name__ == "__main__":
     a = -5; b = 5; n = 10; eps0 = 1.39;
 
-    loss_history = optimal_nodes(f, a, b, n, eps0) 
-    epochs = np.arange(len(loss_history))
-
+    # finding optimal nodes for multiple startvalues of L
     fig, ax = plt.subplots(1, 1)
-    ax.loglog(epochs, loss_history, label=f"n = {n}")
+
+    L_vals = [1, 10, 100]
+
+    for i in range(len(L_vals)):
+        params, loss_history = optimal_nodes(a, b, n, eps0, L_vals[i]) 
+        epochs = np.arange(1, len(loss_history) + 1) # first point is lost
+
+        ax.loglog(epochs, loss_history, label=f"n = {n}, L = {L_vals[i]}")
 
     ax.set_title(r"Loss history for gradient descent on $[x,\epsilon]$ for Runge's function, $x\in [-5,5]$")
     ax.set_xlabel("Epoch")
     ax.set_ylabel(r"$||f - \tilde{f}||_{2}^2$")
-
     ax.legend()
-    plt.show()
 
+    plt.show()
 
     n_vals = np.arange(10, 50, 10)
 
@@ -129,7 +126,8 @@ if __name__ == "__main__":
     
     for n in n_vals:
         # approximate 2 norm error for optimal nodes
-        optimal_nodes_error.append(optimal_nodes(f, a, b, n, eps0)[-1])
+        nodes, loss_history = optimal_nodes(a, b, n, eps0, L=100)
+        optimal_nodes_error.append(loss_history[-1])
 
         e_nodes = np.linspace(a, b, n+1)
         c_nodes = chebyshev_nodes(a, b, n+1)
@@ -140,6 +138,10 @@ if __name__ == "__main__":
         error_equidistant.append(two_norm_error_square(f, x_eval, f_thilde_equidistant))
         error_chebyshev.append(two_norm_error_square(f, x_eval, f_thilde_chebyshev))
 
+    # table with squared 2-norm
+    print(f"{'n':>4} {'Optimal':>12} {'Equidistant':>12} {'Chebyshev':>12}")
+    for n, e_opt, e_eq, e_ch in zip(n_vals, optimal_nodes_error, error_equidistant, error_chebyshev):
+        print(f"{n:>4} {e_opt:>12.2e} {e_eq:>12.2e} {e_ch:>12.2e}")
 
     fig, ax = plt.subplots(1, 1)
 
