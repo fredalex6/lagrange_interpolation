@@ -4,16 +4,16 @@ import matplotlib.pyplot as plt
 from interpolation import lagrange_interp, chebyshev_nodes
 
 
-def two_norm_error(f, nodes, y_vals):
+def two_norm_error(f, x_eval, y_vals):
     """Discrete L2 error between f and the approximation y_vals sampled on nodes."""
-    a, b = nodes[0], nodes[-1]
-    N = len(nodes)
+    a, b = x_eval[0], x_eval[-1]
+    N = len(x_eval)
 
-    return np.sqrt((b - a)/N) * np.sqrt(np.sum((f(nodes) - y_vals)**2))
+    return np.sqrt((b - a)/N) * np.sqrt(np.sum((f(x_eval) - y_vals)**2))
 
-def max_norm_error(f, nodes, y_vals):
+def max_norm_error(f, x_eval, y_vals):
     """Discrete max error between f and the approximation y_vals sampled on nodes."""
-    return np.max(np.abs(f(nodes) - y_vals))
+    return np.max(np.abs(f(x_eval) - y_vals))
 
 
 def lagrange_error(f, n, a, b, N, chebyshev=True):
