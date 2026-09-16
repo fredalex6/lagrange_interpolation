@@ -43,7 +43,7 @@ def optimal_interior_nodes(f, a, b, n, eps0):
     max_epochs = 2000
 
     interior_prev = np.zeros(n)
-    interior_next = np.linspace(a, b, n + 2)[1:-1]
+    interior_next = np.linspace(a, b, n+1)[1:-1]
 
     loss_history = []
     epoch = 0
@@ -87,7 +87,6 @@ def optimal_interior_nodes(f, a, b, n, eps0):
 
 
 if __name__ == "__main__":
-
     a = -5; b = 5; n = 10; eps0 = 2;
 
     loss_history = optimal_interior_nodes(f, a, b, n, eps0) 
@@ -114,8 +113,8 @@ if __name__ == "__main__":
         # 2 norm error for optimal nodes
         optimal_nodes_error.append(optimal_interior_nodes(f, a, b, n, eps0)[-1])
 
-        e_nodes = np.linspace(a, b, n)
-        c_nodes = chebyshev_nodes(a, b, n)
+        e_nodes = np.linspace(a, b, n+1)
+        c_nodes = chebyshev_nodes(a, b, n+1)
 
         f_thilde_equidistant = RBF_interpolate(e_nodes, f(e_nodes), x_eval)
         f_thilde_chebyshev = RBF_interpolate(c_nodes, f(c_nodes), x_eval)
