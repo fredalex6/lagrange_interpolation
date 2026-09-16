@@ -3,7 +3,7 @@ from autograd import value_and_grad
 import matplotlib.pyplot as plt
 
 from RBF import RBF_interpolate
-from error import two_norm_error
+from error import two_norm_error_square
 from interpolation import chebyshev_nodes
 
 # Runge's function
@@ -20,7 +20,7 @@ def loss_fn(interior_nodes, theta):
     nodes = np.concatenate([[a], interior_nodes, [b]])
     f_thilde = RBF_interpolate(nodes, f(nodes), x_eval, eps)
 
-    return two_norm_error(f, x_eval, f_thilde)
+    return two_norm_error_square(f, x_eval, f_thilde)
 
 loss_and_grad = value_and_grad(loss_fn, (0, 1))
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     error_chebyshev = []
     
     for n in n_vals:
-        # 2 norm error for optimal nodes
+        # approximate 2 norm error for optimal nodes
         optimal_nodes_error.append(optimal_interior_nodes(f, a, b, n, eps0)[-1])
 
         e_nodes = np.linspace(a, b, n+1)
@@ -119,8 +119,8 @@ if __name__ == "__main__":
         f_thilde_equidistant = RBF_interpolate(e_nodes, f(e_nodes), x_eval)
         f_thilde_chebyshev = RBF_interpolate(c_nodes, f(c_nodes), x_eval)
 
-        error_equidistant.append(two_norm_error(f, x_eval, f_thilde_equidistant))
-        error_chebyshev.append(two_norm_error(f, x_eval, f_thilde_chebyshev))
+        error_equidistant.append(two_norm_error_square(f, x_eval, f_thilde_equidistant))
+        error_chebyshev.append(two_norm_error_square(f, x_eval, f_thilde_chebyshev))
 
 
     fig, ax = plt.subplots(1, 1)

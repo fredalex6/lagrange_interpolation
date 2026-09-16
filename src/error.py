@@ -11,6 +11,13 @@ def two_norm_error(f, x_eval, y_vals):
 
     return np.sqrt((b - a)/N) * np.sqrt(np.sum((f(x_eval) - y_vals)**2))
 
+def two_norm_error_square(f, x_eval, y_vals):
+    """Discrete L2 error squared between f and the approximation y_vals sampled on nodes."""
+    a, b = x_eval[0], x_eval[-1]
+    N = len(x_eval)
+
+    return (b - a)/N * np.sum((f(x_eval) - y_vals)**2)
+
 def max_norm_error(f, x_eval, y_vals):
     """Discrete max error between f and the approximation y_vals sampled on nodes."""
     return np.max(np.abs(f(x_eval) - y_vals))
