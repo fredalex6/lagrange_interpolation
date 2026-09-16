@@ -42,7 +42,7 @@ def optimal_interior_nodes(f, a, b, n, eps0):
     theta_prev = 0; theta_next = np.log(eps0)
     max_epochs = 2000
 
-    interior_prev = np.zeros(n)
+    interior_prev = np.zeros(n-1)
     interior_next = np.linspace(a, b, n+1)[1:-1]
 
     loss_history = []
