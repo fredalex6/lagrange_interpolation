@@ -12,13 +12,6 @@ def f(x):
 
 # task parameters
 a = -5; b = 5; N = 1000
-x_eval = np.linspace(a, b, N+1)
-
-def loss_fn(nodes, theta):
-    eps = np.exp(theta)
-    f_thilde = RBF_interpolate(nodes, f(nodes), x_eval, eps)
-
-    return two_norm_error_square(f, x_eval, f_thilde)
 
 def make_loss(f, a, b, N):
     x_eval = np.linspace(a, b, N+1)
@@ -41,13 +34,9 @@ def pack(v, t):
 
 
 def optimal_nodes(a, b, n, eps0, L):
-    rho = 0.5; rho_bar = 1.5; TOL = 1e-7
-    theta_prev = 0; theta = np.log(eps0)
-    max_epochs = 2000
+    rho = 0.5; rho_bar = 1.5; TOL = 1e-7; theta = np.log(eps0); max_epochs = 2000
 
     nodes = np.linspace(a, b, n+1)
-    grad = np.zeros_like(nodes)
-
     loss_history = []
     epoch = 0
 
