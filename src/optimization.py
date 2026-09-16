@@ -123,10 +123,14 @@ if __name__ == "__main__":
     optimal_nodes_error = []
     error_equidistant = []
     error_chebyshev = []
-    
+
+    optimal_params = []
+
     for n in n_vals:
         # approximate 2 norm error for optimal nodes
         params, loss_history = optimal_nodes(a, b, n, eps0, L=100)
+
+        optimal_params.append(params)
         optimal_nodes_error.append(loss_history[-1])
 
         e_nodes = np.linspace(a, b, n+1)
@@ -152,9 +156,41 @@ if __name__ == "__main__":
     ax.semilogy(n_vals, error_equidistant, label="Equidistant nodes")
     ax.semilogy(n_vals, error_chebyshev, label="Chebyshev nodes")
 
-    ax.set_title("2 norm error RBF interpolation")
+    ax.set_title("2 norm sqaured error with RBF interpolation")
     ax.set_xlabel("n")
     ax.set_ylabel(r"$||f - \tilde{f}||_{2}^2$")
+    ax.legend()
+
+    plt.show()
+
+    # compare with exact function for n = 10
+    nodes, eps = optimal_params[0][:-1], optimal_params[0][-1]
+    f_thilde_optimal = RBF_interpolate(nodes, f(nodes), x_eval, eps)
+
+    fig, ax = plt.subplots(1, 1)
+
+    ax.plot(x_eval, f(x_eval), label="f")
+    ax.plot(x_eval, f_thilde_optimal, "--", label=r"$\tilde{f}$ with optimal nodes")
+    ax.plot(nodes, f(nodes), "o", label="Optimal nodes")
+
+    ax.set_title(rf"RBF interpolation with optimal nodes, n = {n_vals[0]}, $\epsilon$ = {eps:.3f}")
+    ax.set_xlabel("x")
+    ax.legend()
+
+    plt.show()
+
+    # pointwise error with optimal nodes for all n
+    fig, ax = plt.subplots(1, 1)
+
+    for n, params in zip(n_vals, optimal_params):
+        nodes, eps = params[:-1], params[-1]
+        f_thilde_optimal = RBF_interpolate(nodes, f(nodes), x_eval, eps)
+        ax.semilogy(x_eval, np.abs(f(x_eval) - f_thilde_optimal), label=rf"n = {n}, $\epsilon$ = {eps:.3f}")
+
+    ax.set_title("Pointwise error with optimal nodes")
+    ax.set_xlabel("x")
+    ax.set_ylabel(r"$|f - \tilde{f}|$")
+    ax.set_ylim(bottom=1e-10) # the error is approx. 0 at the nodes, which squashes the plot
     ax.legend()
 
     plt.show()
