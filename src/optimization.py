@@ -12,12 +12,10 @@ def f(x):
 
 # task parameters
 a = -5; b = 5; N = 1000
-x_eval = np.linspace(a, b, N)
+x_eval = np.linspace(a, b, N+1)
 
-def loss_fn(interior_nodes, theta):
+def loss_fn(nodes, theta):
     eps = np.exp(theta)
-
-    nodes = np.concatenate([[a], interior_nodes, [b]])
     f_thilde = RBF_interpolate(nodes, f(nodes), x_eval, eps)
 
     return two_norm_error_square(f, x_eval, f_thilde)
@@ -37,27 +35,30 @@ def pack(v, t):
     return np.concatenate([v, np.atleast_1d(t)])
 
 
-def optimal_interior_nodes(f, a, b, n, eps0):
-    L = 100; rho = 0.5; rho_bar = 1.5; TOL = 1e-10
-    theta_prev = 0; theta_next = np.log(eps0)
+def optimal_nodes(f, a, b, n, eps0):
+    L = 100; rho = 0.5; rho_bar = 1.5; TOL = 1e-7
+    theta_prev = 0; theta = np.log(eps0)
     max_epochs = 2000
 
-    interior_prev = np.zeros(n-1)
-    interior_next = np.linspace(a, b, n+1)[1:-1]
+    nodes = np.linspace(a, b, n+1)
+    grad = np.zeros_like(nodes)
 
     loss_history = []
     epoch = 0
 
-    while (np.linalg.norm(interior_next - interior_prev) > TOL or np.abs(theta_next - theta_prev) > TOL) and epoch < max_epochs:
-        interior_prev = interior_next.copy()
-        theta_prev = theta_next
+    while epoch < max_epochs:
+        nodes_prev = nodes.copy()
+        theta_prev = theta
 
-        loss, (grad_x, grad_theta) = loss_and_grad(interior_prev, theta_prev)
+        loss, (grad_x, grad_theta) = loss_and_grad(nodes_prev, theta_prev)
         grad = pack(grad_x, grad_theta)
-        x = pack(interior_prev, theta_prev)
+        x = pack(nodes_prev, theta_prev)
 
         if np.isnan(grad).any():
             print("Gradient has atleast one NaN-element")
+            break
+
+        if np.linalg.norm(grad) <= TOL:
             break
 
         max_inner_its = 100
@@ -74,22 +75,27 @@ def optimal_interior_nodes(f, a, b, n, eps0):
             L *= rho_bar
             inner_it += 1
 
-        interior_next = x_thilde[:-1]
-        theta_next = x_thilde[-1]
+        nodes = x_thilde[:-1]
+        theta = x_thilde[-1]
         L *= rho
 
         # print(f"L = {L}")
         loss_history.append(loss)
         epoch += 1
 
-    return loss_history
+    if nodes.min() < a or nodes.max() > b:
+        print("One or more points are outside the interval")
+        print(f"Min: {nodes.min():.4f}, Max: {nodes.max():.4f}")
 
+    final_loss = loss_fn(nodes, theta)
+
+    return pack(loss_history, final_loss)
 
 
 if __name__ == "__main__":
-    a = -5; b = 5; n = 10; eps0 = 2;
+    a = -5; b = 5; n = 10; eps0 = 1.39;
 
-    loss_history = optimal_interior_nodes(f, a, b, n, eps0) 
+    loss_history = optimal_nodes(f, a, b, n, eps0) 
     epochs = np.arange(len(loss_history))
 
     fig, ax = plt.subplots(1, 1)
@@ -97,7 +103,7 @@ if __name__ == "__main__":
 
     ax.set_title(r"Loss history for gradient descent on $[x,\epsilon]$ for Runge's function, $x\in [-5,5]$")
     ax.set_xlabel("Epoch")
-    ax.set_ylabel("Loss in approximate 2 norm")
+    ax.set_ylabel(r"$||f - \tilde{f}||_{2}^2$")
 
     ax.legend()
     plt.show()
@@ -111,7 +117,7 @@ if __name__ == "__main__":
     
     for n in n_vals:
         # approximate 2 norm error for optimal nodes
-        optimal_nodes_error.append(optimal_interior_nodes(f, a, b, n, eps0)[-1])
+        optimal_nodes_error.append(optimal_nodes(f, a, b, n, eps0)[-1])
 
         e_nodes = np.linspace(a, b, n+1)
         c_nodes = chebyshev_nodes(a, b, n+1)
@@ -131,7 +137,7 @@ if __name__ == "__main__":
 
     ax.set_title("2 norm error RBF interpolation")
     ax.set_xlabel("n")
-    ax.set_ylabel(r"$||f - \tilde{f}||_{2}$")
+    ax.set_ylabel(r"$||f - \tilde{f}||_{2}^2$")
     ax.legend()
 
     plt.show()
