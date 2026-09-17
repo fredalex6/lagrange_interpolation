@@ -51,7 +51,7 @@ def piecewise_perf(f, a, b, n, K, x_eval, runs=10):
 def global_perf(f, a, b, n, x_eval, runs=10):
     """Measures the performance of global interpolation of f on [a, b], given n"""
 
-    c_nodes = chebyshev_nodes(a, b, n)
+    c_nodes = chebyshev_nodes(a, b, n+1)
     best_time = np.inf
 
     # find the best time over multiple runs given same params 
@@ -69,54 +69,49 @@ if __name__ == "__main__":
     a, b = -5, 5; n_max = 10
 
     K_vals = np.unique(np.logspace(0.3, 3, 30).round().astype(int))
-    x_eval = np.linspace(a, b, 100*n_max)
+    x_eval = np.linspace(a, b, 100*(n_max + 1))
 
     fig, ax = plt.subplots(figsize=(9, 6.5))
- 
+
     for n in range(1, n_max+1):
         error = []
- 
+
         for K in K_vals:
             outer_nodes = np.linspace(a, b, K+1)
             y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x_eval)
             error.append(max_norm_error(f, x_eval, y_vals))
- 
+
+        ax.set_title("Interpolation error in the max norm for piecewise interpolation")
         ax.loglog(K_vals, error, label=f"n = {n}")
- 
+
     ax.set_xlabel("K")
     ax.set_ylabel(r"$||f-p_n||_{\infty}$")
- 
-    fig.subplots_adjust(top=0.84)
-    fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.93),
-            ncol=5, fontsize="small", frameon=False)
-    fig.suptitle("Interpolation error in the max norm for piecewise interpolation",
-                y=0.975)
+
+    ax.legend()
     plt.show()
 
 
     fig, ax = plt.subplots(figsize=(9, 6.5))
 
     for n in range(1, n_max+1):
-        K_used, error = [], []
+        total_nodes_piecewise, error = [], []
 
         for K in K_vals:
             outer_nodes = np.linspace(a, b, K+1)
-            x_eval = np.linspace(a, b, 37*K + 1) # 37 points per subinterval
-            y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x_eval)
+            x_eval_piecewise = np.linspace(a, b, 100*K + 1) # 100 points per subinterval
+            y_vals = piecewise_lagrange_interp(outer_nodes, f, n, x_eval_piecewise)
 
-            e = max_norm_error(f, x_eval, y_vals)
-            K_used.append(K); error.append(e)
+            e = max_norm_error(f, x_eval_piecewise, y_vals)
+            total_nodes_piecewise.append(K*n + 1); error.append(e)
 
-        slope = np.polyfit(np.log(K_used[-4:]), np.log(error[-4:]), 1)[0]
-        print(f"n = {n:2d}: measured slope {slope:6.2f}, theory {-(n+1):3d}")
-        plt.loglog(K_used, error, label=f"n = {n}")
+        ax.loglog(total_nodes_piecewise, error, label=f"n = {n}")
 
 
     total_nodes_global = []
     error_equidistant = []
     error_chebyshev = []
 
-    for n_global in range(2, 41, 2):
+    for n_global in range(2, 100):
         nodes_equidistant = np.linspace(a, b, n_global+1)
         nodes_chebyshev = chebyshev_nodes(a, b, n_global+1)
 
@@ -128,10 +123,10 @@ if __name__ == "__main__":
         error_chebyshev.append(max_norm_error(f, x_eval, y_chebyshev))
 
 
-    ax.loglog(total_nodes_global, error_equidistant, label="global, equidistant nodes (n = N-1)")
-    ax.loglog(total_nodes_global, error_chebyshev, label="global, Chebyshev nodes (n = N-1)")
+    ax.loglog(total_nodes_global, error_equidistant, label="global, equidistant nodes (n = N-1)", color="k", linestyle="--")
+    ax.loglog(total_nodes_global, error_chebyshev, label="global, Chebyshev nodes (n = N-1)", color="r", linestyle="--")
 
-    ax.set_xlabel("total nodes, N")
+    ax.set_xlabel(r"total nodes, $N = K*n + 1$")
     ax.set_ylabel(r"$||f-p_n||_{\infty}$")
 
     fig.subplots_adjust(top=0.80)
@@ -142,17 +137,16 @@ if __name__ == "__main__":
     plt.show()
 
     # measure performance
-    x_ref = np.linspace(a, b, 20001)
+    N = 1e4
+    x_eval = np.linspace(a, b, N+1)
 
     for n, K in [(1, 100), (1, 1000), (3, 20), (3, 100), (10, 10)]:
         outer_nodes = np.linspace(a, b, K+1)
-        e = max_norm_error(f, x_ref, piecewise_lagrange_interp(outer_nodes, f, n, x_ref))
-        print(f"piecewise n={n:2d}, K={K:4d}: N={K*n+1:5d}, error={e:.2e}, "
-              f"time={piecewise_perf(f, a, b, n, K, x_ref)*1e3:.2f} ms")
+        error = max_norm_error(f, x_eval, piecewise_lagrange_interp(outer_nodes, f, n, x_eval))
+        print(f"piecewise (n={n}, K={K}). N={K*n+1}, error={error:.2e}, time={piecewise_perf(f, a, b, n, K, x_eval)*1e3:.2f} ms")
 
     for n in [10, 20, 40]:
         nodes = chebyshev_nodes(a, b, n+1)
-        e = max_norm_error(f, x_ref, lagrange_interp(nodes, f(nodes), x_ref))
-        print(f"global   n={n:2d}        : N={n+1:5d}, error={e:.2e}, "
-              f"time={global_perf(f, a, b, n, x_ref)*1e3:.2f} ms")
+        error = max_norm_error(f, x_eval, lagrange_interp(nodes, f(nodes), x_eval))
+        print(f"global (n={n}). N={n+1}, error={error:.2e}, time={global_perf(f, a, b, n, x_eval)*1e3:.2f} ms")
     
