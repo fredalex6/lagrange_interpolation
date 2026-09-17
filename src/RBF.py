@@ -11,20 +11,23 @@ def phi_square(r2, eps):
 
 
 def interpolation_matrix(x, nodes, eps):
-    """A[i, j] = phi(|x_i - nodes_j|), slik at f_thilde(x) = A @ w."""
+    """M[i, j] = phi(|x_i - nodes_j|), such that f_thilde(x) approximates M @ w."""
     d = x[:, None] - nodes[None, :]
     return phi_square(d**2, eps)
 
 
 def f_thilde(w, nodes, eps, x):
+    """f_thilde(x) = M @ w"""
     return interpolation_matrix(np.atleast_1d(x), nodes, eps) @ w
 
 
 def M(nodes, eps):
+    """calculates the interpolation matrix M[i, j] = phi(|nodes_i - nodes_j|)"""
     return interpolation_matrix(nodes, nodes, eps)
 
 
 def RBF_interpolate(nodes, y_vals, x_eval, eps=1.39):
+    """interpolate on nodes using a RBF with given epsilon, given y_vals, and evalue on x_eval"""
     M_ = M(nodes, eps)
     w = np.linalg.solve(M_, y_vals)
 
