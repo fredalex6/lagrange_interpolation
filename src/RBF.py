@@ -12,7 +12,7 @@ def phi_square(r2, eps):
 
 def interpolation_matrix(x, nodes, eps):
     """M[i, j] = phi(|x_i - nodes_j|), such that f_thilde(x) approximates M @ w."""
-    d = x[:, None] - nodes[None, :]
+    d = np.expand_dims(x, axis=1) - np.expand_dims(nodes, axis=0)
     return phi_square(d**2, eps)
 
 
@@ -77,11 +77,8 @@ if __name__ == "__main__":
     def f(x):
         return 1 / (1 + x**2)
 
-    nodes = np.linspace(a, b, n+1)
-    y_vals = f(nodes)
-    x_eval = np.linspace(a, b, 100*(n+1))
-
-    plot_rbf(f, -5, 5, 10, [0.1, 0.5, 1.3, 5], "RBF interpolation, Runge's function")
+    eps_vals_f = [0.1, 0.5, 1.3, 5]
+    plot_rbf(f, a, b, n, eps_vals_f, "RBF interpolation, Runge's function")
 
     # test function parameters
     a = 0; b = 1; n = 10
@@ -90,7 +87,8 @@ if __name__ == "__main__":
     def g(x):
         return np.cos(2*np.pi*x)
 
-    plot_rbf(g, 0, 1, 10, [0.3, 1.4, 20], r"RBF interpolation, $\cos(2\pi x)$")
+    eps_vals_g = [0.3, 1.4, 20]
+    plot_rbf(g, a, b, n, eps_vals_g, r"RBF interpolation, $\cos(2\pi x)$")
 
     eps_vals = np.logspace(-3, 1, num = 100)
     M_cond, error = cond_and_error(g, a, b, n, eps_vals)
