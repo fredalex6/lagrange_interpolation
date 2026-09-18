@@ -47,8 +47,28 @@ def cond_and_error(func, a, b, n, eps_vals):
             w = np.linalg.solve(M_eps, y_vals)
             errors.append(max_norm_error(func, x_eval, f_thilde(w, nodes, eps, x_eval)))
         except np.linalg.LinAlgError:
-            errors.append(np.nan) # singular matrix
+            errors.append(np.nan) # 0 as one of the pivots
     return np.array(conds), np.array(errors)
+
+
+def plot_rbf(func, a, b, n, eps_list, title):
+    """plot func and its RBF interpolant for every eps in eps_list"""
+    nodes = np.linspace(a, b, n+1)
+    y_vals = func(nodes)
+    x_eval = np.linspace(a, b, 100*(n+1))
+
+    fig, ax = plt.subplots()
+
+    ax.plot(x_eval, func(x_eval), label="f", color="black")
+    ax.plot(nodes, y_vals, "o", color="black")
+    for eps in eps_list:
+        ax.plot(x_eval, RBF_interpolate(nodes, y_vals, x_eval, eps), label=rf"$\epsilon$ = {eps}")
+
+    ax.set_title(title)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -61,27 +81,16 @@ if __name__ == "__main__":
     y_vals = f(nodes)
     x_eval = np.linspace(a, b, 100*(n+1))
 
-    fig, ax = plt.subplots(1, 1)
+    plot_rbf(f, -5, 5, 10, [0.1, 0.5, 1.3, 5], "RBF interpolation, Runge's function")
 
-    ax.plot(x_eval, f(x_eval), label="Runge's function", color="black")
-
-    for eps in [0.1, 0.5, 1, 2, 5]:
-        f_thilde_ = RBF_interpolate(nodes, y_vals, x_eval, eps)
-        ax.plot(x_eval, f_thilde_, label=rf"$\epsilon$ = {eps}")
-
-    ax.set_title("RBF interpolation")
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-
-    ax.legend()
-    plt.show()
-
-    # test parameters
+    # test function parameters
     a = 0; b = 1; n = 10
 
     # one of the test functions
     def g(x):
         return np.cos(2*np.pi*x)
+
+    plot_rbf(g, 0, 1, 10, [0.3, 1.4, 20], r"RBF interpolation, $\cos(2\pi x)$")
 
     eps_vals = np.logspace(-3, 1, num = 100)
     M_cond, error = cond_and_error(g, a, b, n, eps_vals)
