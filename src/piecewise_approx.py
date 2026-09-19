@@ -132,10 +132,8 @@ if __name__ == "__main__":
     ax.set_ylabel(r"$||f-p_n||_{\infty}$")
 
     fig.subplots_adjust(top=0.80)
-    fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.93),
-            ncol=4, fontsize="small", frameon=False)
-    fig.suptitle("Interpolation error in the max norm for piecewise vs. global interpolation",
-                y=0.975)
+    fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.93), ncol=4, fontsize="small", frameon=False)
+    fig.suptitle("Interpolation error in the max norm for piecewise vs. global interpolation", y=0.975)
     plt.show()
 
     # measure performance
