@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     plt.show()
 
-    n_vals = np.arange(10, 50, 10)
+    n_vals = np.arange(10, 51, 5)
 
     optimal_nodes_error = []
     error_equidistant = []
