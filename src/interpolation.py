@@ -68,3 +68,35 @@ if __name__ == "__main__":
         plot_equidistant_chebyshev(f, a, b, n_i)
 
 
+    # Runge's func on [-1, 1]
+    n_vals = [15, 20, 30]
+    fig, (ax1, ax2) = plt.subplots(2, 3, figsize=(15, 8), sharex=True, sharey=True)
+
+    for i in range(len(n_vals)):
+        n_i = n_vals[i]
+        x_equidistant = np.linspace(a, b, n_i+1)
+        x_chebyshev = chebyshev_nodes(a, b, n_i+1)
+
+        x_vals = np.linspace(a, b, N+1)
+
+        y_equidistant = lagrange_interp(x_equidistant, f(x_equidistant), x_vals)
+        y_chebyshev = lagrange_interp(x_chebyshev, f(x_chebyshev), x_vals)
+
+        ax1[i].plot(x_vals, f(x_vals), label="f(x), Runges function", color="black")
+        ax2[i].plot(x_vals, f(x_vals), label="f(x), Runges function", color="black")
+
+        ax1[i].plot(x_vals, y_equidistant, label="Equidistant", color="green")
+        ax2[i].plot(x_vals, y_chebyshev, label="Chebyshev", color="red")
+
+        ax1[i].set_title(f"n = {n_i}")
+        ax2[i].set_title(f"n = {n_i}")
+        ax2[i].set_xlabel("x")
+
+    ax1[0].set_ylabel("y")
+    ax2[0].set_ylabel("y")
+    ax1[0].legend()
+    ax2[0].legend()
+
+    fig.suptitle(f"Lagrange interpolation with equidistant (top) and Chebyshev (bottom) nodes on [{a}, {b}]")
+    fig.tight_layout()
+
