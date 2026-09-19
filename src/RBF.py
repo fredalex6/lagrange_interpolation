@@ -90,8 +90,11 @@ if __name__ == "__main__":
     eps_vals_g = [0.3, 1.4, 20]
     plot_rbf(g, a, b, n, eps_vals_g, r"RBF interpolation, $\cos(2\pi x)$")
 
-    eps_vals = np.logspace(-3, 1, num = 100)
-    M_cond, error = cond_and_error(g, a, b, n, eps_vals)
+    eps_vals = np.logspace(-3, 1, num = 500)
+    M_cond, max_error = cond_and_error(g, a, b, n, eps_vals)
+
+    eps_min_index = np.nanargmin(max_error)
+    print(f"The error minima: eps = {eps_vals[eps_min_index]:.2f}")
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 
@@ -99,7 +102,7 @@ if __name__ == "__main__":
     ax1.set_title("Condition number of M")
     ax1.set_ylabel(r"cond($M$)")
 
-    ax2.loglog(eps_vals, error)
+    ax2.loglog(eps_vals, max_error)
     ax2.set_title(r"Max norm error RBF approximation")
     ax2.set_xlabel(r"$\epsilon$")
     ax2.set_ylabel(r"$||f - \tilde{f}||_{\infty}$")
