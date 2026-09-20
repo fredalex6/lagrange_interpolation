@@ -13,6 +13,8 @@ def f(x):
 # task parameters
 a = -5; b = 5; N = 1000
 
+# making a constructor for the loss function, 
+# since we only want to optimize the function on nodes and theta
 def make_loss(f, a, b, N):
     x_eval = np.linspace(a, b, N+1)
     f_eval = f(x_eval)
@@ -28,9 +30,13 @@ loss_fn, x_eval = make_loss(f, a, b, N)
 loss_and_grad = value_and_grad(loss_fn, (0, 1))
 
 
-# merges an array with a scalar
 def pack(v, t):
+    """Merges an array with a scalar."""
     return np.concatenate([v, np.atleast_1d(t)])
+
+def clamp(x, a, b):
+    """The nodes are clamped in the interval [a,b]."""
+    return pack(np.clip(x[:-1], a, b), x[-1])
 
 
 def optimal_nodes(a, b, n, eps0, L):
@@ -60,7 +66,7 @@ def optimal_nodes(a, b, n, eps0, L):
 
         # backtracking for gradient descent
         while inner_it < max_inner_its:
-            x_thilde = x - (1/L) * grad
+            x_thilde = clamp(x - (1/L) * grad, a, b)
             loss_thilde = loss_fn(x_thilde[:-1], x_thilde[-1])
 
             if loss_thilde <= loss + np.dot(grad, x_thilde - x) + L/2 * np.linalg.norm(x_thilde - x)**2:
@@ -77,9 +83,9 @@ def optimal_nodes(a, b, n, eps0, L):
         loss_history.append(loss)
         epoch += 1
 
-    if nodes.min() < a or nodes.max() > b:
-        print("One or more points are outside the interval")
-        print(f"Min: {nodes.min():.4f}, Max: {nodes.max():.4f}")
+        # check convergence
+        if L * np.linalg.norm(x_thilde - x) <= TOL:
+            break
 
     final_loss = loss_fn(nodes, theta)
 
