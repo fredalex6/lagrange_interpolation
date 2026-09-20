@@ -129,3 +129,26 @@ if __name__ == "__main__":
     plt.title(r"Interpolation error vs. polynomial degree, $g(x) = e^{3x} \sin(2x)$")
     plt.legend()
     plt.show()
+
+
+    # tightness numerical approximation for func f
+    def pi_max(nodes, x):
+        """max_x |prod_i (x - x_i)|"""
+        return np.max(np.abs(np.prod(np.expand_dims(x, axis=1) - np.expand_dims(nodes, axis=0), axis=1)))
+
+    x_eval = np.linspace(a_f, b_f, 100*n_max)
+
+    for cheb, name in [(False, "Equidistant"), (True, "Chebyshev")]:
+        print(f"\n{name} nodes, f(x) = cos(2*pi*x)")
+        print(f"{'n':>3} {'error':>10} {'max|PI|':>10} {'est|PI|':>10} {'est/max':>8} {'bound':>10} {'bound/err':>10}")
+
+        for n in [4, 6, 8, 10, 12, 16]:
+            nodes = chebyshev_nodes(a_f, b_f, n+1) if cheb else np.linspace(a_f, b_f, n+1)
+
+            error_est = max_norm_error(f, *lagrange_error(f, n, a_f, b_f, 100*n_max, chebyshev=cheb))
+            deriv_term = (2*np.pi)**(n+1) / factorial(n+1)[0] # M_{n+1}/(n+1)!
+            PI = pi_max(nodes, x_eval) # measured product
+            PI_est = 2*((b_f-a_f)/4)**(n+1) if cheb else factorial(n)[0]*((b_f-a_f)/n)**(n+1)/4 # analytical product
+            bound = deriv_term*PI_est
+
+            print(f"{n:>3} {error_est:10.2e} {PI:10.2e} {PI_est:10.2e} {PI_est/PI:8.2f} {bound:10.2e} {bound/error_est:10.1f}")
