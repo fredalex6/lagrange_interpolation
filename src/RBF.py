@@ -87,7 +87,7 @@ if __name__ == "__main__":
     def g(x):
         return np.cos(2*np.pi*x)
 
-    eps_vals_g = [0.3, 1.4, 20]
+    eps_vals_g = [0.5, 1.4, 15]
     plot_rbf(g, a, b, n, eps_vals_g, r"RBF interpolation, $\cos(2\pi x)$")
 
     eps_vals = np.logspace(-3, 1, num = 500)
