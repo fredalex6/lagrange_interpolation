@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+
+\begin{document}
+
+
+Let $\mathbf{x} = [x_0,\dots,x_n]$ be the nodes, and write $p_n(\eta;\mathbf{x})$ when we want to emphasise that the interpolation polynomial depends on the nodes. The cost function is
+\[
+C(\mathbf{x}) := \frac{b-a}{N}\sum_{k=0}^{N}\big(f(\eta_k)-p_n(\eta_k)\big)^2, \qquad p_n(\eta) = \sum_{i=0}^{n}\ell_i(\eta)\,f(x_i),
+\]
+so for $0 \le r \le n$
+\[
+\frac{\partial C}{\partial x_r}(\mathbf{x}) = -\frac{2(b-a)}{N}\sum_{k=0}^{N}\big(f(\eta_k)-p_n(\eta_k)\big)\,\frac{\partial p_n}{\partial x_r}(\eta_k).
+\]
+For the nodes $x_i$ it follows that $p_n(x_i) = f(x_i)$.
+
+
+\paragraph{Given $i \neq r$.} $x_r$ only enters $\ell_i(\eta) = \prod_{m\neq i}\frac{\eta-x_m}{x_i-x_m}$ through the factor with $m = r$, and
+\[
+\frac{\partial}{\partial x_r}\left(\frac{\eta-x_r}{x_i-x_r}\right) = \frac{(-1)(x_i-x_r)-(-1)(\eta-x_r)}{(x_i-x_r)^2} = \frac{\eta-x_i}{(x_i-x_r)^2},
+\]
+\[
+\Longrightarrow\quad \frac{\partial \ell_i}{\partial x_r}(\eta) = \ell_i(\eta)\left(\frac{1}{x_i-x_r}-\frac{1}{\eta-x_r}\right).
+\]
+
+\paragraph{Given $i = r$.} Let
+\[
+\ell_r(\eta) = \prod_{m\neq r}\frac{\eta-x_m}{x_r-x_m} = \frac{\prod_{m\neq r}(\eta-x_m)}{\prod_{m\neq r}(x_r-x_m)} =: \frac{g(\eta)}{h(x_r)}.
+\]
+By the quotient rule,
+\[
+\frac{\partial \ell_r}{\partial x_r} = \frac{0\cdot h(x_r)-g(\eta)\,h'(x_r)}{h(x_r)^2} = -\frac{g\,h'}{h^2}.
+\]
+Since
+\[
+\frac{h'}{h} = \frac{\partial}{\partial x_r}\log|h| = \frac{\partial}{\partial x_r}\sum_{m\neq r}\log|x_r-x_m| = \sum_{m\neq r}\frac{1}{x_r-x_m},
+\]
+we get
+\[
+\frac{\partial \ell_r}{\partial x_r}(\eta) = -\ell_r(\eta)\sum_{m\neq r}\frac{1}{x_r-x_m}.
+\]
+
+
+Applying the chain rule in two variables to the identity $p_n(x_r;\mathbf{x}) = f(x_r)$ gives
+\[
+\frac{d}{dx_r}\,p_n(x_r;\mathbf{x}) = \frac{\partial p_n}{\partial \eta}(x_r;\mathbf{x})\cdot\frac{\partial x_r}{\partial x_r} + \frac{\partial p_n}{\partial x_r}(x_r;\mathbf{x}),
+\]
+so, writing $p_n' = \partial p_n/\partial\eta$,
+\[
+f'(x_r) = p_n'(x_r) + \frac{\partial p_n}{\partial x_r}(x_r) \iff \frac{\partial p_n}{\partial x_r}(x_r) = f'(x_r)-p_n'(x_r).
+\]
+Now $\frac{\partial p_n}{\partial x_r}$ is a polynomial in $\eta$ of degree $\le n$, and $\frac{\partial p_n}{\partial x_r}(x_i) = 0$ for $i \neq r$ (since $p_n(x_i;\mathbf{x}) = f(x_i)$ does not depend on $x_r$). Hence we can write
+\[
+\frac{\partial p_n}{\partial x_r}(\eta) = \big(f'(x_r)-p_n'(x_r)\big)\,\ell_r(\eta),
+\]
+\[
+\Longrightarrow\quad \frac{\partial C}{\partial x_r} = -\frac{2(b-a)}{N}\big(f'(x_r)-p_n'(x_r)\big)\sum_{k=0}^{N}\big(f(\eta_k)-p_n(\eta_k)\big)\,\ell_r(\eta_k).
+\]
+
+
+We can now construct $\nabla C$, and find that
+\[
+\nabla C = 0 \iff \big(f'(x_r)-p_n'(x_r)\big)\sum_{k=0}^{N}\big(f(\eta_k)-p_n(\eta_k)\big)\,\ell_r(\eta_k) = 0, \qquad 0\le r\le n,
+\]
+which requires, for each $r$,
+\[
+f'(x_r) = p_n'(x_r) \quad\lor\quad \langle f-p_n,\ \ell_r\rangle_N = 0,
+\]
+where
+\[
+\langle g,h\rangle_N := \frac{b-a}{N}\sum_{k=0}^{N} g(\eta_k)\,h(\eta_k), \qquad \|g\|_N^2 := \langle g,g\rangle_N.
+\]
+The functions $\ell_r$, $r = 0,\dots,n$, form a basis for $\mathcal{P}_n$, so if
+\[
+\langle f-p_n,\ \ell_r\rangle_N = \frac{b-a}{N}\sum_{k=0}^{N}\big(f(\eta_k)-p_n(\eta_k)\big)\,\ell_r(\eta_k) = 0
+\]
+for all $r$, then $f-p_n$ is orthogonal to all of $\mathcal{P}_n$.
+
+\vspace{10mm}
+Let $p \in \mathcal{P}_n$ with $f-p \perp \mathcal{P}_n$. Suppose $f-p$ changes sign on the grid only $m \le n$ times, namely in the intervals $(\eta_{k_j},\eta_{k_j+1})$, $j = 1,\dots,m$. Let
+\[
+q(\eta) = \alpha\prod_{j=1}^{m}(\eta-\beta_j), \qquad \alpha = \pm 1, \quad \beta_j \in (\eta_{k_j},\eta_{k_j+1}).
+\]
+Then $q \in \mathcal{P}_n$ changes sign exactly where $f-p$ does, so with the right choice of $\alpha$ we have $(f-p)(\eta_k)\,q(\eta_k) \ge 0$ for all $k$, with strict inequality for at least one $k$. This is a contradiction, since
+\[
+0 = \langle f-p,\ q\rangle_N = \frac{b-a}{N}\sum_{k=0}^{N}(f-p)(\eta_k)\,q(\eta_k) > 0.
+\]
+Hence $f-p$ changes sign in at least $n+1$ intervals. Since $f-p$ is continuous and $(f-p)(\eta_{k_j})\cdot(f-p)(\eta_{k_j+1}) < 0$ on $n+1$ disjoint intervals $(\eta_{k_j},\eta_{k_j+1})$, $f-p$ has $n+1$ distinct zeros in $(a,b)$.
+
+Consequently $p_n = p^*$, where
+\[
+\|f-p^*\|_N^2 = \min_{q_n\in\mathcal{P}_n}\|f-q_n\|_N^2,
+\]
+i.e.\ $p^*$ is the unique best approximation polynomial in the (discrete) $L^2$.
+
+\subsection*{Requirements for the optimal nodes}
+
+$\mathbf{x}$ is optimal if and only if the $x_r$ are distinct zeros of $f-p^*$:
+\begin{enumerate}
+    \item[(I)] If all $x_r$ are zeros of $f-p^*$, then $p^*$ interpolates $f$ at the nodes. Uniqueness of the interpolation polynomial gives $p_n = p^*$, so $C$ is minimal.
+    \item[(II)] Assume $\mathbf{x}$ is optimal. By (I) the minimal value of $C$ is $\|f-p^*\|_N^2$, and $p^*$ is unique, so $p_n = p^*$. Hence $(f-p^*)(x_r) = 0$ for all $r$.
+\end{enumerate}
+
+\subsection*{An alternative method for finding the optimal nodes}
+
+Choose an orthogonal basis $\{\varphi_0,\dots,\varphi_n\}$ for $\mathcal{P}_n$ and write $p = \sum_{j} c_j\varphi_j$. Then
+\[
+\min_{q\in\mathcal{P}_n}\|f-q\|_N^2 = \min_{\mathbf{c}\in\mathbb{R}^{n+1}}\|M\mathbf{c}-\mathbf{y}\|_2^2, \qquad M_{kj} = \varphi_j(\eta_k), \quad y_k = f(\eta_k).
+\]
+The least squares method then gives
+\[
+M^TM\mathbf{c} = M^T\mathbf{y} \iff \langle f-p,\ \varphi_j\rangle_N = 0, \qquad j = 0,\dots,n.
+\]
+
+\end{document}

@@ -1,0 +1,220 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage[margin=2cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+We are given two functions
+\begin{align*}
+    f(x) := \cos(2\pi x), \hspace{2mm} x \in [0, 1] \hspace{5mm} \text{and} \hspace{5mm} g(x) := e^{3x} \sin(2x), \hspace{2mm} x \in [0, \pi/4]
+\end{align*}
+
+We have that the interpolation error is given as
+
+\begin{align*}
+    y(x) - p_n(x) = \frac{y^{(n+1)}(\xi)}{(n+1)!} \pi_{n+1}(x), \hspace{3mm} \text{where} \hspace{2mm} \pi_{n+1}(x) := \prod_{i=0}^{n}(x - x_i) \hspace{3mm} \text{and} \hspace{2mm}\xi = \xi(x) \in [a,b]
+\end{align*}
+
+which gives
+
+\begin{align*}
+    ||y(x) - p_n(x)||_{\infty} \le \frac{M_{n+1}}{(n+1)!} ||\pi_{n+1}(x)||_{\infty}, \hspace{3mm} \text{where} \hspace{2mm} M_{n+1} := \max_{\xi \in [a,b]} |y^{(n+1)}(\xi)|
+\end{align*}
+
+$f \in C^{\infty}[a,b]$ is not sufficient for convergence, as seen with Runge's function
+interpolated with equidistant nodes on $[-5,5]$.
+
+In order for the interpolation polynomial to converge, $M_{n+1}$ needs to grow slower than
+$||\pi_{n+1}(x)||$ grows for $n \to \infty$.
+
+\vspace{5mm}
+For the equidistant nodes on $[a,b]$ we can claim that
+
+\begin{align*}
+    h = (b - a)/n \Longrightarrow ||\pi_{n+1}(x)|| \le \frac{1}{4} n! h^{n+1},
+\end{align*}
+
+and the proof for this bound follows:
+
+\vspace{5mm}
+Fix $x \in [a,b]$ and $x \in [x_j,x_{j+1}]$ for $0 \le j \le n-1$. With $t = x - x_j \in [0,h]$ the two nearest factors give $|x-x_j||x-x_{j+1}| = t(h-t) \le h^2/4$, since $t = h/2$ is the maximum.
+
+\vspace{5mm}
+All other nodes lie outside $[x_j,x_{j+1}]$, so their distance to $x$ is at most the distance to the far endpoint of that subinterval. $|x-x_i| \le (j+1-i)h$ for $i \le j-1$, and $|x-x_i| \le (i-j)h$ for $i \ge j+2$. Multiplying these $n-1$ factors gives $h^{j}(j+1)! \cdot h^{n-j-1}(n-j)! = h^{n-1}(j+1)!(n-j)!$, where empty products are $1$. Hence $|\pi_{n+1}(x)| \le \frac{h^{n+1}}{4}(j+1)!(n-j)!$.
+
+\vspace{5mm}
+Finally, with $k = j+1 \in \{1,\dots,n\}$ we have $(j+1)!(n-j)! = k!(n+1-k)! = (n+1)!/\binom{n+1}{k}$, and since binomial coefficients in a row are smallest at the ends, $\binom{n+1}{k} \ge n+1$. So $(j+1)!(n-j)! \le n!$, and
+
+$$|\pi_{n+1}(x)| \le \tfrac14 n!\,h^{n+1}. \qquad \blacksquare$$
+
+
+And for Chebyshev nodes on $[a,b]$
+
+\begin{align*}
+    ||\pi_{n+1}(x)|| = 2 ((b-a)/4)^{n+1},
+\end{align*}
+
+which has the following proof:
+
+\vspace{5mm}
+Let $x_i = \frac{a+b}{2} + \frac{b-a}{2}\cos\!\left(\frac{(2i+1)\pi}{2n+2}\right)$, $i = 0,\dots,n$, be the Chebyshev nodes on $[a,b]$, and $\pi_{n+1}(x) = \prod_{i=0}^{n}(x-x_i)$.
+
+Let then $d_i = \cos\frac{(2i+1)\pi}{2n+2}$ to the $x_i$. This gives $x - x_i = \frac{b-a}{2}(d-d_i)$, so $\pi_{n+1}(x) = \left(\frac{b-a}{2}\right)^{n+1}\prod_{i=0}^{n}(d-d_i)$.
+
+We know that the $d_i$ are the roots of the Chebyshev polynomial $T_{n+1}(d) = \cos((n+1)\arccos d)$, with leading coefficients $2^{n}$. For such a monic polynomial, we can write $$\prod_{i=0}^{n}(d-d_i) = 2^{-n}T_{n+1}(d),$$ 
+
+Since $T_{n+1}$ is a cosine function, it never exceeds $1$ in absolute value, and $T_{n+1}(1) = 1$, so the maximum of the product on $[-1,1]$ is exactly $2^{-n}$.
+
+\vspace{5mm}
+Therefore
+
+$$\|\pi_{n+1}\|_\infty = \left(\frac{b-a}{2}\right)^{n+1}2^{-n} = \frac{(b-a)^{n+1}}{2^{2n+1}} = 2\left(\frac{b-a}{4}\right)^{n+1}. \qquad \blacksquare$$
+
+By theorem 8.7 in \textit{An introduction to Numerical Analysis} (Süli and Mayers) this is the smallest max norm any monic polynomial of degree $n+1$ can have on $[a,b]$, and this is therefore the best choice of nodes.
+
+\vspace{5mm}
+For the factor $M_n$ we can show that for $f$ it follows that
+
+\[
+  f^{(k)}(x) = (2\pi)^k \cos\!\left(2\pi x + k\pi/2\right), \qquad k \ge 0,
+\]
+
+which follows by induction: the formula holds for $k = 0$, and differentiating
+the right-hand side gives $-(2\pi)^{k+1}\sin(2\pi x + k\pi/2)
+= (2\pi)^{k+1}\cos(2\pi x + (k+1)\pi/2)$. Hence
+\[
+  |f^{(n+1)}(x)| \le (2\pi)^{n+1} =: M_{n+1},
+\]
+and since the cosine is bounded by $\pm 1$ on $[0,1]$ for every $n$, \ $M_{n+1} = \max_{[0,1]}|f^{(n+1)}|$.
+
+\vspace{5mm}
+For $g$ we similarly find that for $g(x) = \operatorname{Im}\!\left(e^{(3+2i)x}\right)$, we get
+
+\[
+  g^{(k)}(x) = \operatorname{Im}\!\left((3+2i)^k e^{(3+2i)x}\right), \qquad k \ge 0.
+\]
+Therefore, on $[0,\pi/4]$,
+\[
+  |g^{(n+1)}(x)|
+  \;\le\; |3+2i|^{\,n+1}\left|e^{(3+2i)x}\right|
+  \;=\; 13^{(n+1)/2}e^{3x}
+  \;\le\; 13^{(n+1)/2}e^{3\pi/4} =: M_{n+1}.
+\]
+
+Here both $|\operatorname{Im}(z)| \le |z|$ and $e^{3x} \le e^{ 3\pi/4}$ are used, and the two are not sharp at the
+same point. See the discussion of tightness below.
+
+\vspace{5mm}
+We find that $M_{n+1} \le K \cdot C^{n+1}$, where $K$ and $C$ are positive constants independent of
+$n$, so the interpolation polynomial converges as $n \to \infty$.
+
+\vspace{5mm}
+This gives for equidistant nodes in max norm
+
+\begin{align*}
+    ||f - p_n||_{\infty} &\le \frac{(2\pi)^{n+1}}{(n+1)!} \cdot \frac{1}{4} n! h^{n+1} = \frac{1}{4(n+1)} (2\pi h)^{n+1} = \frac{1}{4(n+1)} \left(\frac{2\pi(b-a)}{n}\right)^{n+1}, \\\\
+    ||g - p_n||_{\infty} &\le \frac{13^{(n+1)/2} e^{3\pi/4}}{(n+1)!} \cdot \frac{1}{4} n! h^{n+1} = \frac{e^{3\pi/4}}{4(n+1)} (13^{1/2} h)^{n+1} = \frac{e^{3\pi/4}}{4(n+1)} \left(\frac{13^{1/2}(b-a)}{n}\right)^{n+1}.
+\end{align*}
+
+\vspace{5mm}
+For the Chebyshev nodes in max norm we find
+
+\begin{align*}
+    ||f - p_n||_{\infty} &\le \frac{(2\pi)^{n+1}}{(n+1)!} \cdot 2 ((b-a)/4)^{n+1} = \frac{2}{(n+1)!} \left(\frac{\pi (b-a)}{2}\right)^{n+1} = \frac{2}{(n+1)!} \left(\frac{\pi}{2}\right)^{n+1}, \\\\
+    ||g - p_n||_{\infty} &\le \frac{13^{(n+1)/2} e^{3\pi/4}}{(n+1)!} \cdot 2 ((b-a)/4)^{n+1} = \frac{2e^{3\pi/4}}{(n+1)!} \left(\frac{13^{1/2}(b-a)}{4}\right)^{n+1} = \frac{2e^{3\pi/4}}{(n+1)!} \left(\frac{13^{1/2}\pi}{16}\right)^{n+1}.
+\end{align*}
+
+\vspace{5mm}
+For equidistant nodes $h = (b-a)/n$, so
+\begin{align*}
+    \frac{M_{n+1}}{(n+1)!}||\pi_{n+1}||_{\infty} \le \frac{K C^{n+1}}{(n+1)!}\cdot\frac{1}{4}n!\,h^{n+1}
+    = \frac{K}{4(n+1)}\left(\frac{C(b-a)}{n}\right)^{n+1} \longrightarrow 0,
+\end{align*}
+since $C(b-a)/n \le 1/2$ for $n \ge 2C(b-a)$. The factor $n!$ cancels against $(n+1)!$, so the convergence comes
+from $h \to 0$. For Chebyshev nodes
+\begin{align*}
+    \frac{M_{n+1}}{(n+1)!}||\pi_{n+1}||_{\infty} \le \frac{K C^{n+1}}{(n+1)!}\cdot 2\left(\frac{b-a}{4}\right)^{n+1}
+    = \frac{2K}{(n+1)!}\left(\frac{C(b-a)}{4}\right)^{n+1} \longrightarrow 0,
+\end{align*}
+since $r^{m}/m! \to 0$ for every fixed $r > 0$. 
+
+\vspace{5mm}
+For Runge's function $r(x) := 1/(1+x^2)$ on $[-5,5]$ the geometric series gives
+\begin{align*}
+    r(x) = \sum_{k=0}^{\infty}(-1)^k x^{2k}, \hspace{2mm} |x| < 1 \hspace{5mm} \Longrightarrow \hspace{5mm} r^{(2k)}(0) = (-1)^k (2k)!,
+\end{align*}
+so for odd $n$ we have $M_{n+1} \ge |r^{(n+1)}(0)| = (n+1)!$, and the factorial in the error formula disappears. Evaluating $\pi_{n+1}$ at the midpoint of the first subinterval, $x^* := a + h/2$ with $h = 10/n$,
+\begin{align*}
+    ||\pi_{n+1}||_{\infty} \ge |\pi_{n+1}(x^*)| = h^{n+1}\prod_{i=0}^{n}\left|\tfrac{1}{2} - i\right|
+    = \frac{(2n-1)!!}{2^{n+1}} h^{n+1} \sim \frac{10}{\sqrt{2}\,n}\left(\frac{10}{e}\right)^{n} \hspace{5mm} [\text{Stirling's approx}],
+\end{align*}
+so that
+\begin{align*}
+    \frac{M_{n+1}}{(n+1)!}||\pi_{n+1}||_{\infty} \ge ||\pi_{n+1}||_{\infty} \longrightarrow \infty, \hspace{3mm} n \to \infty.
+\end{align*}
+Here $M_{n+1}$ grows factorially rather than geometrically, which is exactly what separates $r$ from
+$f$ and $g$.
+
+\vspace{5mm}
+We use the ML inequality to find a relationship between $2$ norm and the max norm:
+
+\begin{align*}
+    ||f - p_n||_2^2 = \int_a^b (f - p_n)^2 \, dx \overset{ML}{\le} (b-a) \max_{x \in [a,b]} (f-p_n)^2
+\end{align*}
+
+\begin{align*}
+    \Longrightarrow \hspace{2mm} ||f - p_n||_2 \le \sqrt{b-a} \max_{x \in [a,b]} |f - p_n| = \sqrt{b-a} \, ||f - p_n||_{\infty}
+\end{align*}
+
+And then we use the approximations to find a relationship in the discrete case, using the above.
+
+\vspace{5mm}
+\textbf{How tight is the bound?}
+\vspace{5mm}
+
+The factor $\max_{[a,b]}|f^{(n+1)}|$ does not depend on the choice of nodes, so $\pi_{n+1}$ is what varies. 
+
+For the Chebyshev nodes \[   \prod_{i=0}^{n}(x - x_i) = \left(\frac{b-a}{2}\right)^{\! n+1} 2^{-n}\,T_{n+1}(d),   \qquad d = \frac{2x - a - b}{b - a}, \] 
+
+and $T_{n+1}$ has the values $\pm 1$ at $n+2$ points of $[-1,1]$, so the product oscillates between $\pm 2\left((b-a)/4\right)^{n+1}$ across the whole interval. For equidistant nodes the product is by contrast extremely small in the middle of the interval and largest in the two outermost subintervals.
+
+\vspace{5mm}
+The reason there is a gap is that in the error formula for the interpolation polynomial there
+is the factor
+
+\begin{align*}
+    f^{(n+1)}(\xi(x)) \prod_i (x - x_i),
+\end{align*}
+
+and the bound uses the maximum of both the factors, but they don't have to have their maxima
+at the same points.
+
+\vspace{5mm}
+The Chebyshev nodes minimize $\max_x |\prod_i (x-x_i)|$, and one can compare the factor
+$|\prod_i (x - x_i)|$ for equidistant and Chebyshev nodes and see that
+
+\begin{align*}
+    \text{Equidistant:} \hspace{3mm} &\left|\prod\right|_{\text{eq}} \le n! \, h^{n+1} \sim \sqrt{2\pi/n} \; e^{-n} (b-a)^{n+1} \hspace{5mm} [\text{Stirling's approx}] \\
+    \text{Chebyshev:} \hspace{3mm} &\left|\prod\right|_{\text{cheb}} \le 2 ((b-a)/4)^{n+1}
+\end{align*}
+
+\begin{align*}
+    \Longrightarrow \hspace{3mm} \frac{\left|\prod\right|_{\text{eq}}}{\left|\prod\right|_{\text{cheb}}} \sim (4/e)^n \simeq 1{,}47^n
+\end{align*}
+
+What the comparison shows is that the node product for equidistant nodes exceeds the Chebyshev one by a factor growing like $1.47^{\,n}$.
+
+\end{document}
